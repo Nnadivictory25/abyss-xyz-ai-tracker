@@ -1,0 +1,26 @@
+{
+  "name": "abyss-tracker",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "scripts": {
+    "start": "bun run src/index.ts",
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --minify"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@ai-sdk/openai-compatible": "^2.0.27",
+    "@grammyjs/auto-retry": "^2.0.2",
+    "@grammyjs/stream": "^1.0.0",
+    "@mysten/sui": "^2.2.0",
+    "ai": "^6.0.71",
+    "axios": "^1.13.4",
+    "grammy": "^1.39.3"
+  }
+}
