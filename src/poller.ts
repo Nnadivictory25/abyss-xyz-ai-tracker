@@ -23,7 +23,7 @@ async function checkAndAlertForToken(token: TokenType) {
   if (!data) return;
 
   const amounts = calculateVaultAmounts(data.vault, data.pool);
-  const decimals = token === "USDC" ? 6 : 9;
+  const decimals = token === "USDC" || token === "DEEP" ? 6 : 9;
 
   // Get alerts that should be triggered (filtered in SQL, amounts already in base units)
   const alerts = getAlertsToTrigger(token, amounts.availableCapacity);
@@ -69,10 +69,12 @@ async function checkAndAlertForToken(token: TokenType) {
 
 async function checkAndAlert() {
   try {
-    // Check both vaults in parallel
+    // Check all vaults in parallel
     await Promise.all([
       checkAndAlertForToken("USDC"),
       checkAndAlertForToken("SUI"),
+      checkAndAlertForToken("WAL"),
+      checkAndAlertForToken("DEEP"),
     ]);
   } catch (error) {
     console.error("❌ Error in alert poller:", error);

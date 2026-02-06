@@ -5,6 +5,7 @@ import {
   trackToken,
   getUserAlerts,
   untrackSpecificAmount,
+  untrackToken,
   deleteAlertsById,
 } from "./db";
 
@@ -37,9 +38,9 @@ export const getVaultInfoTool = tool({
     "Get current vault information including total deposited and available capacity. Fetches on-chain data and performs calculations automatically.",
   inputSchema: z.object({
     token: z
-      .enum(["USDC", "SUI"])
+      .enum(["USDC", "SUI", "WAL", "DEEP"])
       .describe(
-        "The token type to get vault info for (currently USDC, SUI are supported)"
+        "The token type to get vault info for (USDC, SUI, WAL, DEEP are supported)"
       ),
   }),
   execute: async ({ token }) => {
@@ -79,7 +80,7 @@ export const setAlertTool = tool({
     "Set a vault capacity alert for a user. When the specified token's vault has at least the requested amount available, the user will receive a Telegram notification. Multiple alerts can be set for the same token with different thresholds.",
   inputSchema: z.object({
     userId: z.number().describe("The Telegram user ID"),
-    token: z.enum(["USDC", "SUI"]).describe("The token vault to monitor"),
+    token: z.enum(["USDC", "SUI", "WAL", "DEEP"]).describe("The token vault to monitor"),
     amount: z
       .number()
       .positive()
@@ -89,7 +90,8 @@ export const setAlertTool = tool({
   }),
   execute: async ({ userId, token, amount }) => {
     try {
-      trackToken({ userId, token: token as TokenType, amount });
+      const result = await trackToken({ userId, token: token as TokenType, amount });
+      console.log(`Alert set successfully: userId=${userId}, token=${token}, amount=${amount}`);
       return {
         success: true,
         message: `✅ Alert set! I'll notify you when the ${token} vault has at least ${amount.toLocaleString()} ${token} available for deposit.`,
@@ -97,9 +99,10 @@ export const setAlertTool = tool({
         amount,
       };
     } catch (error) {
+      console.error(`Failed to set alert: userId=${userId}, token=${token}, amount=${amount}`, error);
       return {
         success: false,
-        message: `❌ Failed to set alert: ${error}`,
+        message: `❌ Failed to set alert: ${error instanceof Error ? error.message : String(error)}`,
         token,
         amount,
       };
@@ -121,13 +124,13 @@ export const listAlertsTool = tool({
         return {
           hasAlerts: false,
           message:
-            "You don't have any active alerts. Use commands like 'alert me when USDC has 3000 available' to set one up!",
+            "You don't have any active alerts. Tell me something like 'alert me when the vault has 300 USDC available to be deposited' to set one up!",
         };
       }
 
       // Format alerts by converting base units back to human-readable
       const formattedAlerts = alerts.map((alert) => {
-        const decimals = alert.token === "USDC" ? 6 : 9;
+        const decimals = alert.token === "USDC" || alert.token === "DEEP" ? 6 : 9;
         const humanReadable = alert.amount / 10 ** decimals;
         return {
           token: alert.token,
@@ -156,7 +159,7 @@ export const removeAlertTool = tool({
     "Remove a specific vault capacity alert for a user. Requires the exact token and amount that was used when creating the alert.",
   inputSchema: z.object({
     userId: z.number().describe("The Telegram user ID"),
-    token: z.enum(["USDC", "SUI"]).describe("The token of the alert to remove"),
+    token: z.enum(["USDC", "SUI", "WAL", "DEEP"]).describe("The token of the alert to remove"),
     amount: z
       .number()
       .positive()
@@ -194,16 +197,16 @@ export const removeAllAlertsTool = tool({
   inputSchema: z.object({
     userId: z.number().describe("The Telegram user ID"),
     token: z
-      .enum(["USDC", "SUI"])
+      .enum(["USDC", "SUI", "WAL", "DEEP"])
       .describe("The token to remove all alerts for"),
   }),
   execute: async ({ userId, token }) => {
     try {
-      // Get all alerts for this user/token
-      const alerts = getUserAlerts(userId);
-      const alertsToRemove = alerts.filter((a) => a.token === token);
+      // Simple one-query delete all alerts for this user+token
+      const result = untrackToken({ userId, token: token as TokenType });
+      const removedCount = result.changes || 0;
 
-      if (alertsToRemove.length === 0) {
+      if (removedCount === 0) {
         return {
           success: true,
           message: `No alerts found for ${token}.`,
@@ -212,24 +215,11 @@ export const removeAllAlertsTool = tool({
         };
       }
 
-      // Delete all alerts for this token
-      // Since we need to delete by ID, we need to query for them first
-      // For now, we'll iterate and delete by amount
-      for (const alert of alertsToRemove) {
-        const decimals = alert.token === "USDC" ? 6 : 9;
-        const humanReadable = alert.amount / 10 ** decimals;
-        untrackSpecificAmount({
-          userId,
-          token: alert.token as TokenType,
-          amount: humanReadable,
-        });
-      }
-
       return {
         success: true,
-        message: `✅ Removed ${alertsToRemove.length} alert(s) for ${token}.`,
+        message: `✅ Removed ${removedCount} alert(s) for ${token}.`,
         token,
-        removedCount: alertsToRemove.length,
+        removedCount,
       };
     } catch (error) {
       return {

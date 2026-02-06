@@ -10,6 +10,16 @@ export const vaults: VaultArray[] = [
 		id: '0x670c12c8ea3981be65b8b11915c2ba1832b4ebde160b03cd7790021920a8ce68',
 		marginPoolId: '0x53041c6f86c4782aabbfc1d4fe234a6d37160310c7ee740c915f0a01b7127344',
 		token: 'SUI',
+	},
+	{
+		id: '0x09b367346a0fc3709e32495e8d522093746ddd294806beff7e841c9414281456',
+		marginPoolId: '0x38decd3dbb62bd4723144349bf57bc403b393aee86a51596846a824a1e0c2c01',
+		token: 'WAL',
+	},
+	{
+		id: '0xec54bde40cf2261e0c5d9c545f51c67a9ae5a8add9969c7e4cdfe1d15d4ad92e',
+		marginPoolId: '0x1d723c5cd113296868b55208f2ab5a905184950dd59c48eb7345607d6b5e6af7',
+		token: 'DEEP',
 	}
 ]
 
@@ -53,6 +63,8 @@ export async function fetchVaultAndPool(token: TokenType): Promise<{ vault: Abys
     console.error('Missing JSON content for vault or pool');
     return null;
   }
+
+  console.log("Fetched vault and pool data");
 
   return {
     vault: vaultResult.json as AbyssVault,

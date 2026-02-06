@@ -2,6 +2,7 @@ import { Database } from "bun:sqlite";
 
 const DB_PATH = process.env.DB_PATH ?? "./abyss.db";
 
+console.log("DB_PATH", DB_PATH);
 export const db = new Database(DB_PATH);
 
 // Create users table
@@ -57,11 +58,11 @@ export function getUser(userId: number) {
 export function trackToken(params: TrackTokenInput) {
   const { userId, token, amount } = params;
   // Store in base units for accurate comparison (e.g., 3000 USDC -> 3000000000)
-  const decimals = token === "USDC" ? 6 : 9;
+  const decimals = token === "USDC" || token === "DEEP" ? 6 : 9;
   const amountBase = Math.floor(amount * 10 ** decimals);
   return db.run(
-    `INSERT INTO tracked_tokens (user_id, token, amount, is_alerted)
-     VALUES (?, ?, ?, 0)`,
+    `INSERT INTO tracked_tokens (user_id, token, amount)
+     VALUES (?, ?, ?)`,
     [userId, token, amountBase]
   );
 }
