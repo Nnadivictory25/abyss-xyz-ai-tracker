@@ -30,17 +30,19 @@ RULES:
 USER_ID: ${userId} — pass this in setAlert, listAlerts, removeAlert, removeAllAlerts.
 
 TOOLS:
-- getVaultInfo({ token }) — For vault status/capacity.
+- getVaultInfo({ token }) — For vault status/capacity/APY. Returns: TVL, Available Capacity, APY rates.
 - setAlert({ userId, token, amount }) — To create alerts (multiple tokens/amounts = multiple calls).
-- listAlerts({ userId }) — List user’s alerts.
+- listAlerts({ userId }) — List user's alerts.
 - removeAlert({ userId, token, amount }) — Remove a specific alert.
 - removeAllAlerts({ userId, token }) — Remove all alerts for a token.
 
 EXAMPLES:
 - Set alert: "Alert me at 3000 USDC" → setAlert(...)
 - Multiple: "Alert me for 3000 USDC and 100k SUI" → setAlert(...) for each
-- Check status: Always call getVaultInfo, show TVL/Available. If full/low, suggest alerts.
+- Check status: Always call getVaultInfo, show TVL, Available Capacity, and APY. If full/low, suggest alerts.
 - Remove alert: "Cancel my 3000 USDC alert" → removeAlert(...)
+
+When showing vault info, ALWAYS include the APY: "APY: <b>X.XX%</b>"
 
 Alert checks: every 30s. Users notified via Telegram when capacity meets/exceeds alert, then alert is deleted.
 

@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { calculateVaultAmounts, fetchVaultAndPool, fetchAPY } from "./abyss";
+import { calculateVaultAmounts, fetchVaultAndPool, fetchAPY, vaults } from "./abyss";
 import {
   trackToken,
   getUserAlerts,
@@ -44,7 +44,16 @@ export const getVaultInfoTool = tool({
       ),
   }),
   execute: async ({ token }) => {
-    const data = await fetchVaultAndPool(token as TokenType);
+    const vaultInfo = vaults.find(v => v.token === token);
+    if (!vaultInfo) {
+      return { error: `No vault configured for token: ${token}` };
+    }
+
+    const [data, apyData] = await Promise.all([
+      fetchVaultAndPool(token as TokenType),
+      fetchAPY(vaultInfo.id),
+    ]);
+
     if (!data) {
       return { error: `Failed to fetch vault data for ${token}` };
     }
@@ -66,6 +75,10 @@ export const getVaultInfoTool = tool({
         description:
           "Amount available for new deposits before hitting pool supply cap",
       },
+      apy: apyData ? {
+        currentAPY: apyData.current_apy.toFixed(2) + "%",
+        description: "Current yield for depositing in this vault",
+      } : null,
       vaultInfo: {
         vaultId: data.vault.id,
         marginPoolId: data.vault.margin_pool_id,
