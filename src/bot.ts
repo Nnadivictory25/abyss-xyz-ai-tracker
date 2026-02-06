@@ -1,6 +1,5 @@
-import { Bot, type Context } from "grammy";
+import { Bot } from "grammy";
 import { autoRetry } from "@grammyjs/auto-retry";
-import { stream, type StreamFlavor } from "@grammyjs/stream";
 import { appendMessage, clearConversation, createUser, getUser, loadConversation } from "./db";
 import { generateResponse } from "./ai";
 
@@ -9,11 +8,21 @@ if (!BOT_TOKEN) {
   throw new Error("BOT_TOKEN is not set");
 }
 
-type BotContext = StreamFlavor<Context>;
-export const bot = new Bot<BotContext>(BOT_TOKEN);
+const botInfo = {
+  id: 8548550101,
+  first_name: "Abyss.xyz AI Tracker",
+  username: "abyss_aitrackerbot",
+  is_bot: true as const,
+  can_join_groups: true,
+  can_read_all_group_messages: false,
+  supports_inline_queries: false,
+  can_connect_to_business: false,
+  has_main_web_app: false
+};
+
+export const bot = new Bot(BOT_TOKEN, { botInfo });
 
 bot.api.config.use(autoRetry());
-bot.use(stream());
 
 bot.command("start", async (ctx) => {
   const userId = ctx.from?.id;
