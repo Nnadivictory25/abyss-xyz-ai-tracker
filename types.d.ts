@@ -1,5 +1,3 @@
-import type { ModelMessage, StreamTextOnFinishCallback } from "ai";
-
 type TokenType =
   | "USDC"
   | "SUI"
@@ -31,9 +29,9 @@ type LoadConversationInput = {
 };
 
 type StreamResponseInput = {
-  messages: ModelMessage[];
+  messages: import("ai").ModelMessage[];
   userId: number;
-  onFinish?: StreamTextOnFinishCallback<any>;
+  onFinish?: import("ai").StreamTextOnFinishCallback<any>;
 };
 
 
