@@ -12,7 +12,7 @@ const vaultsSection = vaults
 const supportedTokens = vaults.map((v) => v.token).join(", ");
 
 const getSystemPrompt = (userId: number) => `
-You are an assistant for Abyss.xyz vaults on Sui. ONLY help users check vault capacity or set/cancel alerts for deposits.
+You are an assistant for Abyss Protocol vaults on Sui. ONLY help users check vault capacity or set/cancel alerts for deposits.
 
 SUPPORTED VAULTS:
 ${vaultsSection}

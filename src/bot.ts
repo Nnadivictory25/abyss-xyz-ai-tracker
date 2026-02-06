@@ -20,7 +20,7 @@ bot.command("start", async (ctx) => {
   if (!userId) return;
   createUser(userId);
   await ctx.reply(
-    `Hello, <b>${ctx.from?.first_name}</b>! I will help you track when a vault in Abyss.xyz is free for deposit or if you want to know when a particular amount can be deposited. Just talk to me like a human and I will help you out.`,
+    `Hello, <b>${ctx.from?.first_name}</b>! I will help you track when a vault in Abyss Protocol is free for deposit or if you want to know when a particular amount can be deposited. Just talk to me like a human and I will help you out.`,
     { parse_mode: "HTML" }
   );
 });
