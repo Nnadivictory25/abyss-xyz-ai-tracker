@@ -1,4 +1,4 @@
-import { gateway, generateText, stepCountIs } from "ai";
+import { gateway, generateText, stepCountIs, type ModelMessage } from "ai";
 import { tools } from "./tools";
 import { vaults } from "./abyss";
 
@@ -46,7 +46,7 @@ Alert checks: every 30s. Users notified via Telegram when capacity meets/exceeds
 NEVER respond to unrelated topics.
 `;
 
-export async function generateResponse(params: { messages: import("ai").ModelMessage[]; userId: number }) {
+export async function generateResponse(params: { messages: ModelMessage[]; userId: number }) {
   const { messages, userId } = params;
 
   const result = await generateText({
