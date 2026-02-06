@@ -97,3 +97,9 @@ type AbyssMarginPool = {
   };
 };
 
+// APY Response from API
+type APYResponse = {
+  current_apy: number;
+  current_incentive_apy: number;
+};
+

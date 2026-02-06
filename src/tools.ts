@@ -1,6 +1,6 @@
 import { tool } from "ai";
 import { z } from "zod";
-import { calculateVaultAmounts, fetchVaultAndPool } from "./abyss";
+import { calculateVaultAmounts, fetchVaultAndPool, fetchAPY } from "./abyss";
 import {
   trackToken,
   getUserAlerts,

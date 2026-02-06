@@ -103,3 +103,41 @@ export function calculateVaultAmounts(vault: AbyssVault, pool: AbyssMarginPool) 
     exchangeRate: exchangeRate.toString(),     // Current exchange rate
   };
 }
+
+// APY cache with 1 hour TTL
+const apyCache = new Map<string, { data: APYResponse; timestamp: number }>();
+const CACHE_TTL = 60 * 60 * 1000; // 1 hour in milliseconds
+
+/**
+ * Fetches current APY from Abyss Protocol API with caching
+ * @param vaultId - The vault object ID
+ * @returns Object with current APY and incentive APY
+ */
+export async function fetchAPY(vaultId: string): Promise<APYResponse | null> {
+  // Check cache first
+  const cached = apyCache.get(vaultId);
+  if (cached && Date.now() - cached.timestamp < CACHE_TTL) {
+    console.log(`Using cached APY for vault ${vaultId}`);
+    return cached.data;
+  }
+
+  try {
+    const response = await fetch(`https://beta.abyssprotocol.xyz/api/vaults/vaults/${vaultId}/current-apy`);
+    if (!response.ok) {
+      console.error(`Failed to fetch APY: ${response.status}`);
+      // Return cached data even if expired, as fallback
+      return cached?.data || null;
+    }
+    
+    const data = await response.json() as APYResponse;
+    
+    // Update cache
+    apyCache.set(vaultId, { data, timestamp: Date.now() });
+    
+    return data;
+  } catch (error) {
+    console.error("Error fetching APY:", error);
+    // Return cached data even if expired, as fallback
+    return cached?.data || null;
+  }
+}
