@@ -8,7 +8,7 @@ function formatAmount(rawAmount: string, decimals: number): string {
   const amount = Number(rawAmount) / 10 ** decimals;
   return amount.toLocaleString("en-US", {
     minimumFractionDigits: 0,
-    maximumFractionDigits: decimals,
+    maximumFractionDigits: 0,
   });
 }
 
