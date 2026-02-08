@@ -4,6 +4,8 @@ import { bot } from "./bot";
 import { startAlertPoller } from "./poller";
 
 const PORT = Number(process.env.PORT ?? 3000);
+const ENV = process.env.NODE_ENV
+console.log("ENV", ENV);
 const WEBHOOK_PATH = "/tg-bot";
 
 // Start the vault alert poller
